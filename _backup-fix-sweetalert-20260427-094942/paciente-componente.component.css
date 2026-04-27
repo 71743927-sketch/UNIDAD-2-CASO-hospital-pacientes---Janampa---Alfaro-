@@ -1,0 +1,35 @@
+﻿:host {
+  display: block;
+}
+
+.card {
+  border-radius: 16px;
+}
+
+.card-header {
+  border-top-left-radius: 16px !important;
+  border-top-right-radius: 16px !important;
+}
+
+table td,
+table th {
+  vertical-align: middle;
+}
+
+.btn-group .btn {
+  min-width: 40px;
+}
+
+.preview-box {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.95rem;
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea:focus {
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}

@@ -109,7 +109,6 @@ export class PacienteComponenteComponent {
         confirmButtonText: 'Entendido',
         confirmButtonColor: '#0d6efd'
       });
-
       return;
     }
 

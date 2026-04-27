@@ -3,7 +3,6 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { startWith } from 'rxjs';
-import Swal from 'sweetalert2';
 import { PacienteService } from '../../services/paciente.service';
 
 @Component({
@@ -24,6 +23,8 @@ export class PacienteComponenteComponent {
 
   readonly modoEdicion = signal(false);
   readonly pacienteEditandoId = signal<number | null>(null);
+  readonly mensaje = signal('');
+  readonly tipoMensaje = signal<'success' | 'danger' | ''>('');
 
   readonly form = this.fb.nonNullable.group({
     dni: ['', [Validators.required, Validators.pattern(/^[0-9]{8}$/)]],
@@ -34,7 +35,7 @@ export class PacienteComponenteComponent {
     diagnostico: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]]
   });
 
-  // Signals derivados desde Reactive Forms
+  // Señales derivadas desde Reactive Forms
   readonly formularioValor = toSignal(
     this.form.valueChanges.pipe(startWith(this.form.getRawValue())),
     { initialValue: this.form.getRawValue() }
@@ -96,20 +97,12 @@ export class PacienteComponenteComponent {
     return this.formularioValido() ? 'success' : 'danger';
   });
 
-  async guardar(): Promise<void> {
+  guardar(): void {
     this.formularioTocado.set(true);
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-
-      await Swal.fire({
-        title: 'Formulario incompleto',
-        text: 'Complete correctamente todos los campos.',
-        icon: 'warning',
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#0d6efd'
-      });
-
+      this.mostrarMensaje('Complete correctamente todos los campos.', 'danger');
       return;
     }
 
@@ -117,48 +110,28 @@ export class PacienteComponenteComponent {
 
     if (this.modoEdicion() && this.pacienteEditandoId() !== null) {
       const resultado = this.pacienteService.actualizar(this.pacienteEditandoId()!, payload);
-
-      await Swal.fire({
-        title: resultado.ok ? 'Paciente actualizado' : 'Error',
-        text: resultado.mensaje,
-        icon: resultado.ok ? 'success' : 'error',
-        confirmButtonText: 'Aceptar',
-        confirmButtonColor: '#0d6efd'
-      });
+      this.mostrarMensaje(resultado.mensaje, resultado.ok ? 'success' : 'danger');
 
       if (resultado.ok) {
-        this.cancelarEdicion();
+        this.cancelarEdicion(false);
       }
 
       return;
     }
 
     const resultado = this.pacienteService.agregar(payload);
-
-    await Swal.fire({
-      title: resultado.ok ? 'Paciente registrado' : 'No se pudo registrar',
-      text: resultado.mensaje,
-      icon: resultado.ok ? 'success' : 'error',
-      confirmButtonText: 'Aceptar',
-      confirmButtonColor: '#0d6efd'
-    });
+    this.mostrarMensaje(resultado.mensaje, resultado.ok ? 'success' : 'danger');
 
     if (resultado.ok) {
       this.limpiarFormulario();
     }
   }
 
-  async editar(id: number): Promise<void> {
+  editar(id: number): void {
     const paciente = this.pacienteService.obtenerPorId(id);
 
     if (!paciente) {
-      await Swal.fire({
-        title: 'Paciente no encontrado',
-        text: 'No se pudo cargar la informacion del paciente.',
-        icon: 'error',
-        confirmButtonText: 'Aceptar',
-        confirmButtonColor: '#dc3545'
-      });
+      this.mostrarMensaje('Paciente no encontrado.', 'danger');
       return;
     }
 
@@ -174,76 +147,27 @@ export class PacienteComponenteComponent {
     this.modoEdicion.set(true);
     this.pacienteEditandoId.set(id);
     this.formularioTocado.set(true);
-
-    await Swal.fire({
-      title: 'Modo edicion activado',
-      text: 'Ahora puede actualizar los datos del paciente.',
-      icon: 'info',
-      confirmButtonText: 'Continuar',
-      confirmButtonColor: '#0d6efd',
-      timer: 1600,
-      timerProgressBar: true
-    });
+    this.mostrarMensaje('Modo edicion activado.', 'success');
   }
 
-  async eliminar(id: number): Promise<void> {
-    const paciente = this.pacienteService.obtenerPorId(id);
-
-    if (!paciente) {
-      await Swal.fire({
-        title: 'Paciente no encontrado',
-        text: 'No existe el paciente que desea eliminar.',
-        icon: 'error',
-        confirmButtonText: 'Aceptar',
-        confirmButtonColor: '#dc3545'
-      });
-      return;
-    }
-
-    const confirmacion = await Swal.fire({
-      title: '¿Eliminar paciente?',
-      text: `Se eliminara a ${paciente.nombres} ${paciente.apellidos}. Esta accion no se puede deshacer.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Si, eliminar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#dc3545',
-      cancelButtonColor: '#6c757d',
-      reverseButtons: true
-    });
-
-    if (!confirmacion.isConfirmed) {
-      await Swal.fire({
-        title: 'Operacion cancelada',
-        text: 'El paciente no fue eliminado.',
-        icon: 'info',
-        confirmButtonText: 'Aceptar',
-        confirmButtonColor: '#0d6efd',
-        timer: 1400,
-        timerProgressBar: true
-      });
-      return;
-    }
-
+  eliminar(id: number): void {
     const resultado = this.pacienteService.eliminar(id);
-
-    await Swal.fire({
-      title: resultado.ok ? 'Paciente eliminado' : 'Error',
-      text: resultado.mensaje,
-      icon: resultado.ok ? 'success' : 'error',
-      confirmButtonText: 'Aceptar',
-      confirmButtonColor: resultado.ok ? '#198754' : '#dc3545'
-    });
+    this.mostrarMensaje(resultado.mensaje, resultado.ok ? 'success' : 'danger');
 
     if (this.pacienteEditandoId() === id) {
-      this.cancelarEdicion();
+      this.cancelarEdicion(false);
     }
   }
 
-  cancelarEdicion(): void {
+  cancelarEdicion(limpiarMensaje: boolean = true): void {
     this.modoEdicion.set(false);
     this.pacienteEditandoId.set(null);
     this.limpiarFormulario();
+
+    if (limpiarMensaje) {
+      this.mensaje.set('');
+      this.tipoMensaje.set('');
+    }
   }
 
   esInvalido(campo: 'dni' | 'nombres' | 'apellidos' | 'edad' | 'telefono' | 'diagnostico'): boolean {
@@ -263,5 +187,10 @@ export class PacienteComponenteComponent {
     this.formularioTocado.set(false);
     this.modoEdicion.set(false);
     this.pacienteEditandoId.set(null);
+  }
+
+  private mostrarMensaje(texto: string, tipo: 'success' | 'danger'): void {
+    this.mensaje.set(texto);
+    this.tipoMensaje.set(tipo);
   }
 }

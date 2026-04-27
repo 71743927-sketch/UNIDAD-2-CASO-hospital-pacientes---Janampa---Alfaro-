@@ -3,13 +3,12 @@
     <div class="col-12">
       <div class="text-center mb-4">
         <h1 class="fw-bold text-primary">Hospital Dr. Sano</h1>
-        <p class="text-muted mb-1">CRUD de pacientes con Angular 21, Reactive Forms, Signals y SweetAlert2</p>
+        <p class="text-muted mb-1">CRUD de pacientes con Angular 21, Reactive Forms y Signals</p>
         <div class="d-flex justify-content-center flex-wrap gap-2">
           <span class="badge text-bg-primary">Angular 21</span>
           <span class="badge text-bg-dark">Reactive Forms</span>
           <span class="badge text-bg-success">Signals</span>
           <span class="badge text-bg-secondary">Bootstrap</span>
-          <span class="badge text-bg-warning">SweetAlert2</span>
         </div>
       </div>
     </div>
@@ -21,6 +20,12 @@
         </div>
 
         <div class="card-body">
+          @if (mensaje()) {
+            <div class="alert mb-3" [ngClass]="'alert-' + tipoMensaje()">
+              {{ mensaje() }}
+            </div>
+          }
+
           <div class="row g-2 mb-3">
             <div class="col-12 col-md-6">
               <div class="small text-muted">Estado del formulario</div>
@@ -101,7 +106,7 @@
 
             @if (!modoEdicion() && limiteAlcanzado()) {
               <div class="alert alert-warning mt-3 mb-0">
-                Se alcanzo el limite maximo de 10 pacientes. Solo se podra editar o eliminar registros existentes.
+                Se alcanzo el limite maximo de 10 pacientes. El formulario solo permitira editar o eliminar registros existentes.
               </div>
             }
           </form>

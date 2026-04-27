@@ -3,45 +3,21 @@
     <div class="col-12">
       <div class="text-center mb-4">
         <h1 class="fw-bold text-primary">Hospital Dr. Sano</h1>
-        <p class="text-muted mb-1">CRUD de pacientes con Angular 21, Reactive Forms y Signals</p>
-        <div class="d-flex justify-content-center flex-wrap gap-2">
-          <span class="badge text-bg-primary">Angular 21</span>
-          <span class="badge text-bg-dark">Reactive Forms</span>
-          <span class="badge text-bg-success">Signals</span>
-          <span class="badge text-bg-secondary">Bootstrap</span>
-        </div>
+        <p class="text-muted mb-0">CRUD de pacientes con Angular 21, Signals y Reactive Forms</p>
       </div>
     </div>
 
     <div class="col-12 col-lg-5">
-      <div class="card shadow-sm border-0 h-100">
+      <div class="card shadow-sm border-0">
         <div class="card-header bg-primary text-white">
           <h5 class="mb-0">{{ tituloFormulario() }}</h5>
         </div>
-
         <div class="card-body">
           @if (mensaje()) {
-            <div class="alert mb-3" [ngClass]="'alert-' + tipoMensaje()">
+            <div class="alert" [ngClass]="'alert-' + tipoMensaje()">
               {{ mensaje() }}
             </div>
           }
-
-          <div class="row g-2 mb-3">
-            <div class="col-12 col-md-6">
-              <div class="small text-muted">Estado del formulario</div>
-              <span class="badge" [ngClass]="'text-bg-' + estadoSemaforo()">
-                {{ formularioValido() ? 'Valido' : 'Pendiente / Invalido' }}
-              </span>
-            </div>
-            <div class="col-12 col-md-6">
-              <div class="small text-muted">Caracteres diagnostico</div>
-              <span class="badge text-bg-info">{{ diagnosticoCaracteres() }}/100</span>
-            </div>
-            <div class="col-12">
-              <div class="small text-muted">Vista previa derivada con signals</div>
-              <div class="preview-box">{{ resumenPaciente() }}</div>
-            </div>
-          </div>
 
           <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
             <div class="mb-3">
@@ -98,24 +74,17 @@
                   Cancelar
                 </button>
               }
-              <button type="submit" class="btn btn-primary" [disabled]="!sePuedeGuardar()">
-                <i class="bi me-1" [ngClass]="modoEdicion() ? 'bi-pencil-square' : 'bi-person-plus'"></i>
-                {{ textoBoton() }}
+              <button type="submit" class="btn btn-primary" [disabled]="!modoEdicion() && limiteAlcanzado()">
+                {{ modoEdicion() ? 'Actualizar' : 'Registrar' }}
               </button>
             </div>
-
-            @if (!modoEdicion() && limiteAlcanzado()) {
-              <div class="alert alert-warning mt-3 mb-0">
-                Se alcanzo el limite maximo de 10 pacientes. El formulario solo permitira editar o eliminar registros existentes.
-              </div>
-            }
           </form>
         </div>
       </div>
     </div>
 
     <div class="col-12 col-lg-7">
-      <div class="card shadow-sm border-0 h-100">
+      <div class="card shadow-sm border-0">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center flex-wrap gap-2">
           <h5 class="mb-0">Listado de pacientes</h5>
           <div>
@@ -123,7 +92,6 @@
             <span class="badge bg-warning text-dark">Cupos disponibles: {{ cuposDisponibles() }}</span>
           </div>
         </div>
-
         <div class="card-body">
           @if (pacientes().length === 0) {
             <div class="alert alert-secondary mb-0">
@@ -131,7 +99,7 @@
             </div>
           } @else {
             <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
+              <table class="table table-hover align-middle">
                 <thead class="table-light">
                   <tr>
                     <th>ID</th>
@@ -154,12 +122,8 @@
                       <td>{{ paciente.diagnostico }}</td>
                       <td class="text-center">
                         <div class="btn-group btn-group-sm">
-                          <button class="btn btn-outline-primary" (click)="editar(paciente.id)">
-                            <i class="bi bi-pencil-square"></i>
-                          </button>
-                          <button class="btn btn-outline-danger" (click)="eliminar(paciente.id)">
-                            <i class="bi bi-trash"></i>
-                          </button>
+                          <button class="btn btn-outline-primary" (click)="editar(paciente.id)">Editar</button>
+                          <button class="btn btn-outline-danger" (click)="eliminar(paciente.id)">Eliminar</button>
                         </div>
                       </td>
                     </tr>

@@ -1,0 +1,139 @@
+﻿<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="text-center mb-4">
+        <h1 class="fw-bold text-primary">Hospital Dr. Sano</h1>
+        <p class="text-muted mb-0">CRUD de pacientes con Angular 21, Signals y Reactive Forms</p>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">{{ tituloFormulario() }}</h5>
+        </div>
+        <div class="card-body">
+          @if (mensaje()) {
+            <div class="alert" [ngClass]="'alert-' + tipoMensaje()">
+              {{ mensaje() }}
+            </div>
+          }
+
+          <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+            <div class="mb-3">
+              <label class="form-label">DNI</label>
+              <input type="text" class="form-control" formControlName="dni" maxlength="8">
+              @if (esInvalido('dni')) {
+                <div class="text-danger small mt-1">Ingrese un DNI valido de 8 digitos.</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Nombres</label>
+              <input type="text" class="form-control" formControlName="nombres">
+              @if (esInvalido('nombres')) {
+                <div class="text-danger small mt-1">Los nombres son obligatorios.</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Apellidos</label>
+              <input type="text" class="form-control" formControlName="apellidos">
+              @if (esInvalido('apellidos')) {
+                <div class="text-danger small mt-1">Los apellidos son obligatorios.</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Edad</label>
+              <input type="number" class="form-control" formControlName="edad">
+              @if (esInvalido('edad')) {
+                <div class="text-danger small mt-1">La edad debe estar entre 0 y 120.</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Telefono</label>
+              <input type="text" class="form-control" formControlName="telefono" maxlength="9">
+              @if (esInvalido('telefono')) {
+                <div class="text-danger small mt-1">Ingrese un telefono valido de 9 digitos.</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Diagnostico</label>
+              <textarea class="form-control" rows="3" formControlName="diagnostico"></textarea>
+              @if (esInvalido('diagnostico')) {
+                <div class="text-danger small mt-1">El diagnostico es obligatorio.</div>
+              }
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              @if (modoEdicion()) {
+                <button type="button" class="btn btn-outline-secondary" (click)="cancelarEdicion()">
+                  Cancelar
+                </button>
+              }
+              <button type="submit" class="btn btn-primary" [disabled]="!modoEdicion() && limiteAlcanzado()">
+                {{ modoEdicion() ? 'Actualizar' : 'Registrar' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-7">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <h5 class="mb-0">Listado de pacientes</h5>
+          <div>
+            <span class="badge bg-info text-dark me-2">Total: {{ totalPacientes() }}</span>
+            <span class="badge bg-warning text-dark">Cupos disponibles: {{ cuposDisponibles() }}</span>
+          </div>
+        </div>
+        <div class="card-body">
+          @if (pacientes().length === 0) {
+            <div class="alert alert-secondary mb-0">
+              Aun no hay pacientes registrados.
+            </div>
+          } @else {
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>ID</th>
+                    <th>DNI</th>
+                    <th>Paciente</th>
+                    <th>Edad</th>
+                    <th>Telefono</th>
+                    <th>Diagnostico</th>
+                    <th class="text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (paciente of pacientes(); track paciente.id) {
+                    <tr>
+                      <td>{{ paciente.id }}</td>
+                      <td>{{ paciente.dni }}</td>
+                      <td>{{ paciente.nombres }} {{ paciente.apellidos }}</td>
+                      <td>{{ paciente.edad }}</td>
+                      <td>{{ paciente.telefono }}</td>
+                      <td>{{ paciente.diagnostico }}</td>
+                      <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-outline-primary" (click)="editar(paciente.id)">Editar</button>
+                          <button class="btn btn-outline-danger" (click)="eliminar(paciente.id)">Eliminar</button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
